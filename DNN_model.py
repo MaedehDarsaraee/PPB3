@@ -7,8 +7,8 @@ from tensorflow.keras.callbacks import EarlyStopping
 import pickle
 
 # Load dataset
-df = pd.read_pickle('ECFP4_4096_BINARY.pkl')
-X = df['ECFP4_fingerprint'].values.tolist()  # Directly extract list
+df = pd.read_pickle('Fingerprint_data.pkl')
+X = df['fp'].values.tolist()  
 Y = df['binary_vector'].values.tolist()
 
 # Convert lists to numpy arrays
@@ -17,9 +17,9 @@ X, Y = np.array(X), np.array(Y)
 # Define DNN model
 def create_dnn_model(input_dim, output_dim):
     model = models.Sequential([
-        layers.Dense(1000, activation='relu', input_shape=(input_dim,)),
+        layers.Dense(1000, activation='relu', input_shape=(input_dim,)),  # first hidden layer
         layers.Dropout(0.2),
-        layers.Dense(500, activation='relu'),
+        layers.Dense(500, activation='relu'), # second hidden layer
         layers.Dropout(0.2),
         layers.Dense(output_dim, activation='sigmoid')
     ])
@@ -38,10 +38,3 @@ model.fit(X_train, Y_train, epochs=200, batch_size=500, validation_data=(X_test,
 
 # Save model
 model.save('ecfp4_4096_dnn_model.h5')
-
-# Predict and save results
-Y_pred = model.predict(X_test)
-with open('predictions.pkl', 'wb') as f:
-    pickle.dump({"X_test": X_test, "Y_test": Y_test, "Y_pred": Y_pred}, f)
-
-print("Model and predictions saved.")
