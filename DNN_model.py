@@ -37,4 +37,4 @@ model = create_dnn_model(X.shape[1], Y.shape[1])
 model.fit(X_train, Y_train, epochs=200, batch_size=500, validation_data=(X_test, Y_test), callbacks=[early_stopping])
 
 # Save model
-model.save('ecfp4_4096_dnn_model.h5')
+model.save('dnn_model.h5')
