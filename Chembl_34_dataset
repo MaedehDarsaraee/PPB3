@@ -1,2 +1,5 @@
 # latest data set from chembl database (chembl 34) including all the target types, organism and protein families
 # bioactivity unit conversion
+import pandas as pd 
+import pickle
+import numpy as np
