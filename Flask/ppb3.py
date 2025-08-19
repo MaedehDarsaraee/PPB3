@@ -54,8 +54,6 @@ def get_next_prediction_file_path():
 
     return new_path
 
-
-
 app = Flask(__name__)
 
 # Limit TensorFlow resource usage for memory efficiency
@@ -185,8 +183,6 @@ def find_nearest_neighbors_with_jar(smiles, target_id, fingerprint_data, db_file
         jar_path = "PPB3_FUSED.jar"
     else:
         raise ValueError(f"Unsupported fingerprint type: {fp_type}")
-
-    # Cache key based on SMILES and fingerprint type
     cache_key = f"{smiles}_{fp_type}"
 
     # Check if NN file already exists
@@ -194,13 +190,7 @@ def find_nearest_neighbors_with_jar(smiles, target_id, fingerprint_data, db_file
         output_file_path = nn_file_cache[cache_key]
         print(f"Reusing cached NN file: {output_file_path}")
         return output_file_path
-
-    # Check if query file exists in the cache
-    #if cache_key in query_file_cache:
-        #query_fp_file_path = query_file_cache[cache_key]
-        #query_index = int(query_fp_file_path.split("_q")[1].split(".")[0]) 
     else:
-        # Generate a new query file if not cached
         if fp_type == "ECfp4":
             ecfp4_counter += 1
             query_index = ecfp4_counter
@@ -253,10 +243,7 @@ def find_nearest_neighbors_with_jar(smiles, target_id, fingerprint_data, db_file
         query_file_cache[cache_key] = query_fp_file_path
 
     # Construct output file path with query index
-    #output_file_path = f"results/{fp_type.lower()}_q{query_index}_nn.txt"
     output_file_path = f"results/{fp_type.lower()}_q{uuid.uuid4().hex[:8]}_nn.txt"
-
-    # Ensure the output directory exists
     os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
 
     # Run the JAR file to compute nearest neighbors
@@ -264,16 +251,15 @@ def find_nearest_neighbors_with_jar(smiles, target_id, fingerprint_data, db_file
         sub.run(
             [
                 "java", "-Xmx4G", "-cp", jar_path, "aid.KNN1ss1",
-                query_fp_file_path,  # Input file
-                db_file,             # Database file
-                fp_type,             # Fingerprint type
-                scoring_method,      # Scoring method
-                str(num_neighbors),  # Number of neighbors
-                output_file_path,    # Output file
-                fp_type              # Additional argument (if required by JAR)
+                query_fp_file_path, 
+                db_file,            
+                fp_type,             
+                scoring_method,     
+                str(num_neighbors),  
+                output_file_path,    
+                fp_type              
             ],
-            check=True
-        )
+            check=True)
         print(f"Nearest neighbors written to: {output_file_path}")
 
         # Cache the output file path
@@ -283,8 +269,6 @@ def find_nearest_neighbors_with_jar(smiles, target_id, fingerprint_data, db_file
         print(f"Error running JAR: {e}")
         raise RuntimeError(f"Error running JAR: {e}")
 
-
-
 def generate_molecule_image(smiles, compound_id):
     """Generates an image of the molecule and saves it as a PNG file."""
     try:
@@ -292,18 +276,16 @@ def generate_molecule_image(smiles, compound_id):
         if mol:
             image_path = f"static/molecules/{compound_id}.png"
             os.makedirs(os.path.dirname(image_path), exist_ok=True)
-            Draw.MolToFile(mol, image_path)  # Generate image using RDKit
+            Draw.MolToFile(mol, image_path) 
             return image_path
     except Exception as e:
         print(f"Error generating image for SMILES {smiles}: {e}")
     return None
 
 app = Flask(__name__, static_folder="static")
-
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     return send_from_directory(app.static_folder, filename)
-
 @app.route('/')
 @app.route('/home')
 def home():
@@ -325,7 +307,7 @@ def result():
         if not smiles_list:
             return jsonify({'error': 'No SMILES provided.'}), 400
 
-        # Define preprocessing functions clearly here or outside the route for modularity
+        # Define preprocessing functions
         def preprocess_smiles(smi):
             mol = Chem.MolFromSmiles(smi)
             if mol is None:
@@ -388,10 +370,8 @@ def result():
         }.get(model_type)
 
         model = models.get(model_type)
-
         if not fingerprint_function or not model:
             return jsonify({'error': f'Model type "{model_type}" not recognized.'}), 400
-
         results = []
         class_counts = {}
         organism_counts = {}
@@ -432,15 +412,13 @@ def result():
                         'class': target_class,
                         'type': target_type,
                         'organism': organism,
-                        'url': f"https://www.ebi.ac.uk/chembl/target_report_card/{target_id}"
-                    })
+                        'url': f"https://www.ebi.ac.uk/chembl/target_report_card/{target_id}"})
 
                     results_file.write(f"{smi}\t{target_id}\n")
 
                 results.append({
                     'smiles': smi,
-                    'predictions': top_targets
-                })
+                    'predictions': top_targets})
 
         query_smiles_image = preprocessed_smiles_list[0]
         mol = Chem.MolFromSmiles(query_smiles_image)
@@ -458,13 +436,9 @@ def result():
             organism_counts=organism_counts,
             type_counts=type_counts,
             query_image_path=img_path,
-            selected_model=model_type
-        )
-
+            selected_model=model_type)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-
 print("DEBUG ERROR: No valid POST request received.")
 @app.route('/fetch_nearest_neighbors', methods=['POST'])
 def fetch_nearest_neighbors():
@@ -509,8 +483,6 @@ def fetch_nearest_neighbors():
             fp_type = "Fused"
         else:
             return jsonify({'error': f'Unsupported model type: {model_type}'}), 400
-        
-        
 
         # Calculate fingerprint
         fingerprint_function = {
@@ -530,7 +502,7 @@ def fetch_nearest_neighbors():
         if fingerprint is None:
             return jsonify({'error': 'Failed to generate fingerprint for the given SMILES.'}), 400
 
-        bitstring = ";".join(map(str, list(fingerprint)))  # Convert fingerprint to a string
+        bitstring = ";".join(map(str, list(fingerprint)))  
 
         # Perform nearest neighbor search
         try:
@@ -541,8 +513,7 @@ def fetch_nearest_neighbors():
                 db_file=db_file,
                 num_neighbors=50,
                 fp_type=fp_type,
-                scoring_method="TANIMOTO"
-            )
+                scoring_method="TANIMOTO")
         except Exception as e:
             return jsonify({'error': 'Failed to compute nearest neighbors.'}), 500
 
@@ -589,8 +560,7 @@ def fetch_nearest_neighbors():
                             "target_id": parts[2],
                             "similarity": float(parts[4]),  # Convert similarity to float
                             "chembl_link": f"https://www.ebi.ac.uk/chembl/compound_report_card/{parts[1]}",
-                            "image_path": generate_molecule_image(parts[0], parts[1])  # Generate image
-                        })
+                            "image_path": generate_molecule_image(parts[0], parts[1])})
                     except ValueError:
                         print(f"Skipping invalid row: {line.strip()}")
 
@@ -603,8 +573,5 @@ def fetch_nearest_neighbors():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-
-
 if __name__ == '__main__':
     app.run(debug=True, host="localhost", port=5000)
