@@ -25,8 +25,8 @@
             border-collapse: collapse; 
             margin: 10px auto; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-            background-color: white;  /* Keep the table background white */
-            color: #333; /* Ensure table text is readable */
+            background-color: white; 
+            color: #333;
         }
 
         th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
@@ -116,7 +116,7 @@
         }
 
         .neighbor-card {
-            flex: 0 1 calc(20% - 10px); /* 5 cards per row */
+            flex: 0 1 calc(20% - 10px); 
             box-sizing: border-box;
             border: 1px solid #aaa;
             border-radius: 8px;
@@ -169,7 +169,6 @@
         #saveAsText {
             font-family: Helvetica, Arial, sans-serif;
         }
-        /* ===== Simple Navigation Bar ===== */
         .nav-bar {
             background-color: #08517f;
             font-family: Helvetica, Arial, sans-serif;
@@ -198,7 +197,6 @@
         .nav-links li a:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        /* ===== Header Section ===== */
         .header {
             background-color: none;
             color: #1a5276;
@@ -208,7 +206,6 @@
             font-weight: bold;
             text-shadow: 1px 1px 2px #aaa;
         }
-        /* ===== Footer ===== */
         .footer {
             text-align: center;
             margin-top: 50px;
@@ -242,8 +239,7 @@
 </head>
 <body>
     <h1>Polypharmacology Browser 3 (PPB3)</h1>
-
-    <!-- Navigation Bar -->
+    
     <div class="nav-bar">
         <ul class="nav-links">
             <li><a href="home">Home</a></li>
@@ -253,43 +249,37 @@
         </ul>
     </div>
 
-    <!-- Results Bar -->
     <div class="diagram-container">
         <div class="diagram-title">
             Prediction Results for Selected Model: DNN({{ selected_model }})
             <button id="saveAsText" class="btn btn-primary" style="font-size: 1.4rem; padding: 5px 10px;">Save the Results</button>
         </div>
     </div>
-    <!-- Pie Charts Section -->
+
     <div class="top-container">
-        <!-- Query Molecule -->
+
         <div class="frame">
             <h3>Query Molecule</h3>
             <img src="{{ query_image_path }}" alt="Query Molecule Structure">
         </div>
-
-        <!-- Protein Class Pie Chart -->
         <div class="frame">
             <h3>Protein Class</h3>
             <canvas id="classPieChart"></canvas>
             <div id="classLegend" class="legend"></div>
         </div>
 
-        <!-- Organism Pie Chart -->
         <div class="frame">
             <h3>Organism</h3>
             <canvas id="organismPieChart"></canvas>
             <div id="organismLegend" class="legend"></div>
         </div>
 
-        <!-- Type Pie Chart -->
         <div class="frame">
             <h3>Type</h3>
             <canvas id="typePieChart"></canvas>
             <div id="typeLegend" class="legend"></div>
         </div>
 
-    <!-- Nearest Neighbors Modal -->
     <div class="modal fade" id="nearestNeighborsModal" tabindex="-1" role="dialog" aria-labelledby="nearestNeighborsLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -320,13 +310,13 @@
                 
                     </div>
                     <div id="nearestNeighborsContent">
-                        <p>Fetching nearest neighbors...</p> <!-- Default text to indicate loading -->
-                        <!-- START NEW MODAL FOOTER -->
+                        <p>Fetching nearest neighbors...</p> 
+
                         <div class="modal-footer">
                             <button id="saveNNButton" class="btn btn-success">Save Nearest Neighbors as CSV</button>
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         </div>
-                        <!-- END NEW MODAL FOOTER -->
+
                     </div>
                 </div>
             </div>
@@ -336,8 +326,6 @@
 
 </body>
 
-
-    <!-- Results Table Section -->
     {% for result in results %}
     <table id="resultsTable">
         <thead>
@@ -379,7 +367,7 @@
                             class="btn btn-info nearest-neighbors-btn" 
                             data-smiles="{{ result.smiles }}" 
                             data-target-id="{{ pred.target_id }}" 
-                            data-fp-type="{{ selected_model }}"> <!-- Pass Selected Model -->
+                            data-fp-type="{{ selected_model }}">
                             Display NN
                         </button>
                     </td>
