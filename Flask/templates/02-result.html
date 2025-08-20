@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Maedeh Darsaraee">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="/static/jsme/jsme.nocache.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/smiles-drawer/dist/smiles-drawer.min.js"></script> 
+
+    <style>
+        body { 
+            font-family: Helvetica, Arial, sans-serif; 
+            margin: 20px; 
+            background-color: rgba(235, 243, 255, 0.9);
+            background-attachment: fixed;
+        }
+
+        table { 
+            width: 85%; 
+            border-collapse: collapse; 
+            margin: 10px auto; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+            background-color: white;  /* Keep the table background white */
+            color: #333; /* Ensure table text is readable */
+        }
+
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        thead th {
+            font-size: 1.6rem;
+            font-weight: bold;
+        }
+        tbody td {
+            font-size: 1.55rem;
+        }
+
+        .top-container {
+            display: flex;
+            justify-content: center; 
+            align-items: flex-start; 
+            gap: 15px; 
+            margin-bottom: 10px;
+        }
+        .frame {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            flex: 1;
+            max-width: 220px;
+            background-color: #f9f9f9;
+            margin: 0 5px; 
+        }
+        .frame img {
+            max-width: 100%; 
+            margin-top: 10px;
+        }
+        .frame canvas {
+            width: 150px; 
+            height: 150px; 
+            margin: auto;
+        }
+        .legend {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 1.2rem; 
+            font-weight: bold;
+        }
+        .legend-circle {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .frame h3 {
+            font-size: 1.1em; 
+            margin-bottom: 5px; 
+            font-weight: bold;
+            
+        }
+        .diagram-container {
+            display: flex;
+            justify-content: center; 
+            align-items: center;
+            margin-bottom: 20px; 
+        }
+        .diagram-title {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            background-color: #08517f;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 5px;
+            width: 70%;
+            margin: 0 auto;
+            font-family: Helvetica, Arial, sans-serif;
+        }
+        .nearest-neighbors-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .neighbor-card {
+            flex: 0 1 calc(20% - 10px); /* 5 cards per row */
+            box-sizing: border-box;
+            border: 1px solid #aaa;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            text-align: center;
+        }
+
+        .neighbor-image {
+            width: 100%;
+            height: auto;
+            max-width: 130px;
+            max-height: 130px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .neighbor-details {
+            text-align: center;
+            font-size: 14px; 
+        }
+        .neighbor-details a {
+            font-weight: bold;
+            color: #08517f; 
+            text-decoration: none;
+        }
+        .neighbor-details a:hover {
+            text-decoration: underline;
+        }
+        h1 {
+            text-align: center;
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #08517f;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .selected-model h3 {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 1.8rem;
+        }
+        .diagram-title {
+            font-family: Helvetica, Arial, sans-serif;
+        }
+        .frame h3 {
+            font-family: Helvetica, Arial, sans-serif;
+        }
+        #saveAsText {
+            font-family: Helvetica, Arial, sans-serif;
+        }
+        /* ===== Simple Navigation Bar ===== */
+        .nav-bar {
+            background-color: #08517f;
+            font-family: Helvetica, Arial, sans-serif;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(255, 255, 255, 0.278);
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 0;
+            padding: 0;
+        }
+        .nav-links li a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 1.6rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .nav-links li a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        /* ===== Header Section ===== */
+        .header {
+            background-color: none;
+            color: #1a5276;
+            padding: 20px;
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+        /* ===== Footer ===== */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .footer p {
+            font-size: 1.4rem;
+            color: #1a5276;
+            margin-bottom: 10px;
+            font-family: Helvetica, Arial, sans-serif;
+        }
+        .footer a {
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            color:  #08517f;
+            transition: color 0.3s ease;
+        }
+        .footer a:hover {
+            color: #357ab7;
+        }
+        .glyphicon {
+            margin-right: 5px;
+        }
+        .flex-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 40px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Polypharmacology Browser 3 (PPB3)</h1>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <ul class="nav-links">
+            <li><a href="home">Home</a></li>
+            <li><a href="/tutorial">Tutorial</a></li>
+            <li><a href="/faq">FAQ</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </div>
+
+    <!-- Results Bar -->
+    <div class="diagram-container">
+        <div class="diagram-title">
+            Prediction Results for Selected Model: DNN({{ selected_model }})
+            <button id="saveAsText" class="btn btn-primary" style="font-size: 1.4rem; padding: 5px 10px;">Save the Results</button>
+        </div>
+    </div>
+    <!-- Pie Charts Section -->
+    <div class="top-container">
+        <!-- Query Molecule -->
+        <div class="frame">
+            <h3>Query Molecule</h3>
+            <img src="{{ query_image_path }}" alt="Query Molecule Structure">
+        </div>
+
+        <!-- Protein Class Pie Chart -->
+        <div class="frame">
+            <h3>Protein Class</h3>
+            <canvas id="classPieChart"></canvas>
+            <div id="classLegend" class="legend"></div>
+        </div>
+
+        <!-- Organism Pie Chart -->
+        <div class="frame">
+            <h3>Organism</h3>
+            <canvas id="organismPieChart"></canvas>
+            <div id="organismLegend" class="legend"></div>
+        </div>
+
+        <!-- Type Pie Chart -->
+        <div class="frame">
+            <h3>Type</h3>
+            <canvas id="typePieChart"></canvas>
+            <div id="typeLegend" class="legend"></div>
+        </div>
+
+    <!-- Nearest Neighbors Modal -->
+    <div class="modal fade" id="nearestNeighborsModal" tabindex="-1" role="dialog" aria-labelledby="nearestNeighborsLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nearestNeighborsLabel">Nearest Neighbors</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="progressContainer" style="display: none; margin-bottom: 10px;">
+                        <div class="progress">
+                            <div 
+                                id="progressBar" 
+                                class="progress-bar progress-bar-striped progress-bar-animated" 
+                                role="progressbar" 
+                                style="width: 0%;" 
+                                aria-valuenow="0" 
+                                aria-valuemin="0" 
+                                aria-valuemax="100">
+                                0%
+                            </div>
+                        </div>
+                    </div>
+                    <div id="nearestNeighborsContent">
+                    </div>
+                </div>
+                
+                    </div>
+                    <div id="nearestNeighborsContent">
+                        <p>Fetching nearest neighbors...</p> <!-- Default text to indicate loading -->
+                        <!-- START NEW MODAL FOOTER -->
+                        <div class="modal-footer">
+                            <button id="saveNNButton" class="btn btn-success">Save Nearest Neighbors as CSV</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                        <!-- END NEW MODAL FOOTER -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+
+    <!-- Results Table Section -->
+    {% for result in results %}
+    <table id="resultsTable">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Target ID</th>
+                <th>Target Name</th>
+                <th>Confidence Score</th>
+                <th>Target Protein Class</th>
+                <th>Target Organism</th>
+                <th>Target Type</th>
+                <th>Nearest Neighbors</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pred in result.predictions %}
+                <tr>
+                    <td>{{ pred.rank }}</td>
+                    <td><a href="https://www.ebi.ac.uk/chembl/target_report_card/{{ pred.target_id }}" target="_blank">{{ pred.target_id }}</a></td>
+                    <td>{{ pred.target_name }}</td>
+                    <td>
+                        <div class="progress">
+                            <div 
+                                class="progress-bar" 
+                                role="progressbar" 
+                                aria-valuenow="{{ pred.confidence }}" 
+                                aria-valuemin="0" 
+                                aria-valuemax="1" 
+                                style="width: {{ pred.confidence * 100 }}%; background-color: #4caf50; color: black;">
+                                {{ pred.confidence }}
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ pred.class }}</td>
+                    <td>{{ pred.organism }}</td>
+                    <td>{{ pred.type }}</td>
+                    <td>
+                        <button 
+                            class="btn btn-info nearest-neighbors-btn" 
+                            data-smiles="{{ result.smiles }}" 
+                            data-target-id="{{ pred.target_id }}" 
+                            data-fp-type="{{ selected_model }}"> <!-- Pass Selected Model -->
+                            Display NN
+                        </button>
+                    </td>
+                    
+                                      
+                </tr>
+            {% endfor %}
+        </tbody>            
+    </table>    
+    {% endfor %}
+    <!-- JavaScript -->
+    <script>
+        document.getElementById("saveAsText").addEventListener("click", function () {
+            const table = document.getElementById("resultsTable");
+            let csvData = [];
+
+            // Extract table headers
+            const headers = Array.from(table.querySelectorAll("thead th"))
+                .map(th => `"${th.innerText}"`);
+            csvData.push(headers.join(","));
+
+            // Extract table rows
+            table.querySelectorAll("tbody tr").forEach(row => {
+                const rowData = Array.from(row.querySelectorAll("td"))
+                    .slice(0, -1) // Exclude the last column (Nearest Neighbors button)
+                    .map(td => `"${td.innerText}"`);
+                csvData.push(rowData.join(","));
+            });
+
+            // Convert to CSV and trigger download
+            const blob = new Blob([csvData.join("\n")], { type: "text/csv" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "prediction_results.csv";
+            a.click();
+            URL.revokeObjectURL(a.href);
+        });
+
+    </script>
+    
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+                // START GLOBAL VARIABLE
+                let currentNearestNeighbors = [];
+                // END GLOBAL VARIABLE
+        
+            const nearestNeighborButtons = document.querySelectorAll('.nearest-neighbors-btn');
+
+            nearestNeighborButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const smiles = this.getAttribute('data-smiles');
+                    const targetId = this.getAttribute('data-target-id');
+                    const fpType = this.getAttribute('data-fp-type'); // Get the fingerprint type
+
+                    // Show loading message and progress bar in the modal
+                    const modalContent = document.getElementById('nearestNeighborsContent');
+                    const progressContainer = document.getElementById('progressContainer');
+                    const progressBar = document.getElementById('progressBar');
+                    modalContent.innerHTML = '<p>Loading nearest neighbors...</p>';
+                    progressContainer.style.display = 'block';
+                    progressBar.style.width = '0%';
+                    progressBar.setAttribute('aria-valuenow', 0);
+                    progressBar.textContent = '0%';
+
+                    // Display the modal
+                    $('#nearestNeighborsModal').modal('show');
+
+                    // Simulate progress for better user feedback
+                    const simulateProgress = setInterval(() => {
+                        let currentProgress = parseInt(progressBar.getAttribute('aria-valuenow'));
+                        if (currentProgress >= 100) {
+                            clearInterval(simulateProgress);
+                        } else {
+                            currentProgress += 5; // Increment progress by 5%
+                            progressBar.style.width = `${currentProgress}%`;
+                            progressBar.setAttribute('aria-valuenow', currentProgress);
+                            progressBar.textContent = `${currentProgress}%`;
+                        }
+                    }, 1000); // Adjusted from 150 to 300 milliseconds to slow down the progress
+
+
+                    // Make the fetch request
+                    fetch('/fetch_nearest_neighbors', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            smiles: smiles, 
+                            target_id: targetId, 
+                            model_type: fpType  // Send the selected fingerprint type
+                        })
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            clearInterval(simulateProgress); // Stop simulated progress
+                            progressContainer.style.display = 'none'; // Hide progress bar
+
+                            if (data.nearest_neighbors && data.nearest_neighbors.length > 0) {
+                                currentNearestNeighbors = data.nearest_neighbors; // Save data for CSV download
+
+                                modalContent.innerHTML = `
+                                    <h5>Nearest Neighbors</h5>
+                                    <div class="nearest-neighbors-grid">
+                                        ${data.nearest_neighbors.map(n => `
+                                            <div class="neighbor-card">
+                                                <img class="neighbor-image" src="${n.image_path}" alt="Structure of ${n.compound_id}" width="250" height="250">
+                                                <div class="neighbor-details">
+                                                    <p><strong>Compound ID:</strong> <a href="${n.chembl_link}" target="_blank">${n.compound_id}</a></p>
+                                                    <p><strong>Tanimoto Similarity:</strong> ${n.similarity.toFixed(2)}</p>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>`;
+                            } else {
+                                modalContent.innerHTML = '<p style="color: red;">No nearest neighbors found.</p>';
+                                currentNearestNeighbors = []; // Reset if no neighbors
+                            }
+                        })
+
+                        .catch(error => {
+                            clearInterval(simulateProgress); // Stop simulated progress
+                            console.error('Error fetching nearest neighbors:', error);
+                            modalContent.innerHTML = '<p>Error loading nearest neighbors.</p>';
+                            progressContainer.style.display = 'none'; // Hide progress bar
+                        });
+                });
+            });
+                // START CSV DOWNLOAD BUTTON HANDLER
+                document.getElementById('saveNNButton').addEventListener('click', function() {
+                    if (currentNearestNeighbors.length === 0) {
+                        alert("No nearest neighbors data available to save.");
+                        return;
+                    }
+
+                    let csvContent = "SMILES,Chembl_ID,Tanimoto_Similarity\n";
+
+                    currentNearestNeighbors.forEach(nn => {
+                        csvContent += `"${nn.smiles}","${nn.compound_id}",${nn.similarity.toFixed(4)}\n`;
+                    });
+
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement("a");
+                    link.setAttribute("href", URL.createObjectURL(blob));
+                    link.setAttribute("download", "nearest_neighbors.csv");
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                });
+                // END CSV DOWNLOAD BUTTON HANDLER
+
+        });
+
+
+    </script>
+   
+</body>
+
+    <!-- JavaScript Section -->
+    <script>
+        const classCounts = {{ class_counts|tojson }};
+        const organismCounts = {{ organism_counts|tojson }};
+        const typeCounts = {{ type_counts|tojson }}; // Added for Target Type Pie Chart
+
+        const fixedColors = {
+            // Existing class and organism colors
+            "Kinase": "#1f77b4",
+            "Protease": "#ff7f0e",
+            "Enzyme": "#2ca02c",
+            "Membrane Receptor": "#d62728",
+            "Ion Channel": "#9467bd",
+            "Transporter": "#8c564b",
+            "Transcription Factor": "#e377c2",
+            "Others": "#7f7f7f",
+            "Homo Sapiens": "#17becf",
+            "Mus Musculus": "#bcbd22",
+            "Rattus Norvegicus": "#dbdb8d",
+            "Others Organisms": "#9edae5",
+
+            // Fixed colors for the TYPE column
+            "SINGLE PROTEIN": "#1f77b4",
+            "CELL-LINE": "#ff7f0e",
+            "PROTEIN COMPLEX GROUP": "#2ca02c",
+            "PROTEIN COMPLEX": "#d62728",
+            "PROTEIN FAMILY": "#9467bd",
+            "PROTEIN NUCLEIC-ACID COMPLEX": "#8c564b",
+            "ORGANISM": "#e377c2",
+            "PROTEIN-PROTEIN INTERACTION": "#7f7f7f",
+            "TISSUE": "#17becf",
+            "CHIMERIC PROTEIN": "#bcbd22",
+            "NUCLEIC-ACID": "#dbdb8d",
+            "SUBCELLULAR": "#9edae5",
+            "SELECTIVITY GROUP": "#ff9896",
+            "MACROMOLECULE": "#c49c94",
+            "OLIGOSACCHARIDE": "#aec7e8"
+        };
+
+        // Summarize and filter protein classes
+        function summarizeProteinClasses(classCounts) {
+            const summarizedCounts = {
+                "Kinase": 0,
+                "Protease": 0,
+                "Enzyme": 0,
+                "Membrane Receptor": 0,
+                "Ion Channel": 0,
+                "Transporter": 0,
+                "Transcription Factor": 0,
+                "Others": 0
+            };
+            for (const [className, count] of Object.entries(classCounts)) {
+                const lowerClassName = className.toLowerCase();
+                if (lowerClassName.includes("kinase")) summarizedCounts["Kinase"] += count;
+                else if (lowerClassName.includes("protease")) summarizedCounts["Protease"] += count;
+                else if (lowerClassName.includes("enzyme")) summarizedCounts["Enzyme"] += count;
+                else if (lowerClassName.includes("membrane receptor")) summarizedCounts["Membrane Receptor"] += count;
+                else if (lowerClassName.includes("ion channel")) summarizedCounts["Ion Channel"] += count;
+                else if (lowerClassName.includes("transporter")) summarizedCounts["Transporter"] += count;
+                else if (lowerClassName.includes("transcription factor")) summarizedCounts["Transcription Factor"] += count;
+                else summarizedCounts["Others"] += count;
+            }
+            return Object.fromEntries(Object.entries(summarizedCounts).filter(([_, value]) => value > 0));
+        }
+
+        // Summarize and filter target organisms
+        function summarizeTargetOrganisms(organismCounts) {
+            const summarizedCounts = {
+                "Homo Sapiens": 0,
+                "Mus Musculus": 0,
+                "Rattus Norvegicus": 0,
+                "Others": 0
+            };
+            for (const [organismName, count] of Object.entries(organismCounts)) {
+                const lowerOrganismName = organismName.toLowerCase();
+                if (lowerOrganismName.includes("homo sapiens")) summarizedCounts["Homo Sapiens"] += count;
+                else if (lowerOrganismName.includes("mus musculus")) summarizedCounts["Mus Musculus"] += count;
+                else if (lowerOrganismName.includes("rattus norvegicus")) summarizedCounts["Rattus Norvegicus"] += count;
+                else summarizedCounts["Others"] += count;
+            }
+            return Object.fromEntries(Object.entries(summarizedCounts).filter(([_, value]) => value > 0));
+        }
+    
+
+        function adjustLegendFontSize(legendId, maxFontSize = 10, minFontSize = 6) {
+            const legend = document.getElementById(legendId);
+            const containerWidth = legend.offsetWidth;
+            const containerHeight = legend.offsetHeight;
+            let currentFontSize = maxFontSize;
+
+            legend.style.fontSize = `${currentFontSize}px`;
+
+            while (
+                (legend.scrollWidth > containerWidth || legend.scrollHeight > containerHeight) &&
+                currentFontSize > minFontSize
+            ) {
+                currentFontSize -= 1;
+                legend.style.fontSize = `${currentFontSize}px`;
+            }
+        }
+        function renderPieChart(canvasId, legendId, dataCounts, colors) {
+            const labels = Object.keys(dataCounts);
+            const dataValues = Object.values(dataCounts);
+
+            const chart = new Chart(document.getElementById(canvasId), {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: labels.map(label => colors[label] || `#${Math.floor(Math.random() * 16777215).toString(16)}`),
+                        borderWidth:0.5
+                    }]
+                },
+                options: {
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => {
+                                    const total = context.dataset.data.reduce((sum, value) => sum + value, 0);
+                                    const percentage = ((context.raw / total) * 100).toFixed(2);
+                                    return `${context.label}: ${percentage}%`;
+                                }
+                            }
+                        },
+                        legend: { display: false } // Disable built-in legend
+                    }
+                }
+            });
+
+            // Generate legend dynamically
+            const legend = document.getElementById(legendId);
+            legend.innerHTML = ""; // Clear previous content
+            labels.forEach((label, index) => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `
+                    <span class="legend-circle" style="background-color: ${chart.data.datasets[0].backgroundColor[index]};"></span>
+                    <span>${label}</span>
+                `;
+                legend.appendChild(legendItem);
+            });
+
+            // Adjust font size to fit the container
+            adjustLegendFontSize(legendId);
+        }
+        const summarizedClassCounts = summarizeProteinClasses(classCounts);
+        const summarizedOrganismCounts = summarizeTargetOrganisms(organismCounts);
+        // Render Class and Organism Pie Charts
+        renderPieChart('classPieChart', 'classLegend', summarizedClassCounts, fixedColors);
+        renderPieChart('organismPieChart', 'organismLegend', summarizedOrganismCounts, fixedColors);
+        renderPieChart('typePieChart', 'typeLegend', typeCounts, fixedColors);
+    </script>
+    
+
+</body>
+
+    <!-- Footer Section -->
+    <footer class="footer">
+        <p>Follow us:</p>
+        <a href="https://gdb.unibe.ch/" target="_blank" title="Reymond Group Website">
+            <img src="static/website.png" alt="Website Icon" style="width: 20px; height: 20px;">
+        </a>
+        <a href="https://www.linkedin.com/in/reymond-group-4a2712289/" target="_blank" title="LinkedIn">
+            <img src="static/linkedin.png" alt="LinkedIn Icon" style="width: 20px; height: 20px;">
+        </a>
+        <a href="https://x.com/reymondgroup" target="_blank" title="X">
+            <img src="static/x.png" alt="X Icon" style="width: 20px; height: 20px;">
+        </a>
+        <a href="https://bsky.app/profile/reymondgroup.bsky.social" target="_blank" title="Bluesky">
+            <img src="static/bluesky.png" alt="Bluesky Icon" style="width: 20px; height: 20px;">
+        </a>
+    </footer>
+</body>
+</html>
