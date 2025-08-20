@@ -14,12 +14,6 @@ from tensorflow.keras.models import load_model
 # Flask App Initialization
 app = Flask(__name__, static_folder="static")
 
-# Limit TensorFlow resource usage
-os.environ["OMP_NUM_THREADS"] = "4"
-os.environ["TF_NUM_INTRAOP_THREADS"] = "4"
-os.environ["TF_NUM_INTEROP_THREADS"] = "2"
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
 # Load Models & Target Info
 try:
     MODELS = {
