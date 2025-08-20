@@ -1,7 +1,5 @@
 import os
-import uuid
 import numpy as np
-import subprocess as sub
 from rdkit import Chem
 from rdkit.Chem import AllChem, RDKFingerprint, Draw
 from mhfp.encoder import MHFPEncoder
