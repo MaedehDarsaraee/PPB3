@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Maedeh Darsaraee">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial - PPB3</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, rgba(245, 247, 250, 0.9), rgba(195, 207, 226, 0.9));
+            color: #333;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        header {
+            background-color: transparent;
+            color: #1a5276;
+            padding: 20px;
+            text-align: center;
+            font-size: 2.0rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+        .container {
+            margin: 30px auto;
+            max-width: 1100px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        h4 {
+            color: #1a5276;
+            font-size: 1.5rem;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        a {
+            color: #08517f;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #08517f;
+            color: #fff;
+        }
+        footer a {
+            color: #fff;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .nav-bar {
+            background-color: #08517f;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(255, 255, 255, 0.278);
+            margin-bottom: 20px;
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 0;
+            padding: 0;
+        }
+        .nav-links li a {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .nav-links li a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        Polypharmacology Browser 3 (PPB3)
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <ul class="nav-links">
+            <li><a href="/home" aria-label="Home">Home</a></li>
+            <li><a href="/tutorial" aria-label="Tutorial">Tutorial</a></li>
+            <li><a href="/faq" aria-label="FAQ">FAQ</a></li>
+            <li><a href="/contact" aria-label="Contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- FAQ Section -->
+    <div class="container">
+        <h4>1.	Draw your query compound or paste the SMILES representation of your query compound:</h4>
+        <p>To draw a query compound, use the molecular editor by clicking on the desired chemical structures and bonds, or paste the SMILES representation of the compound directly into the SMILES container below the editor. </p>
+
+        <h4>2.	Select a target prediction method:</h4>
+        <p>The next step is to choose one of the available target prediction methods. Each model is a Deep Neural Network (DNN) trained on different molecular fingerprints. The models are ranked based on their performance, specifically in terms of overall recall values. After selecting your desired target prediction method, click on the 'Predict Top 20 Targets' button to initiate the target prediction process. </p>
+
+        <h4>3.	Target prediction results:</h4>
+        <p>The target prediction results page provides a list of the top 20 predicted targets ranked based on the confidence score of the predictions, along with the targets associated details, including the target name, ChEMBL ID, target ChEMBL report card, protein class, organism, and type of the predictions. Additionally, a summary of the target information is displayed through three pie charts, offering an overview of the distribution across different protein classes, organisms, and target types. By clicking on the 'Display NN' button, you can view the top three nearest neighbors of the query compound, ranked based on their Tanimoto similarity scores.</p>
+
+        <h4>4.	Save the results:</h4>
+        <p>By clicking on the 'Save the Results' button at the top of the predictions results page, you can download a CSV file containing the prediction results table.</p>
+    </div>
+    <footer class="footer">
+        <p>Follow us:</p>
+        <a href="https://gdb.unibe.ch/" target="_blank" title="Reymond Group Website">
+            <img src="static/website.png" alt="Website Icon" style="width: 20px; height: 20px;">
+        </a>
+        <a href="https://www.linkedin.com/in/reymond-group-4a2712289/" target="_blank" title="LinkedIn">
+            <img src="static/linkedin.png" alt="LinkedIn Icon" style="width: 20px; height: 20px;">
+        </a>
+        <a href="https://x.com/reymondgroup" target="_blank" title="X">
+            <img src="static/x.png" alt="X Icon" style="width: 20px; height: 20px;">
+        </a>
+        <a href="https://bsky.app/profile/reymondgroup.bsky.social" target="_blank" title="Bluesky">
+            <img src="static/bluesky.png" alt="Bluesky Icon" style="width: 20px; height: 20px;">
+        </a>
+    </footer>
+</body>
+</html>
