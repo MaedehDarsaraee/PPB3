@@ -1,0 +1,6 @@
+Flask>=2.2
+numpy>=1.23
+pandas>=1.5
+rdkit-pypi>=2022.9.5
+mhfp>=1.9.3
+tensorflow>=2.12
