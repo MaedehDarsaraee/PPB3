@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Maedeh Darsaraee">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PPB3</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" language="javascript" src="static/jsme/jsme.nocache.js"></script>
+    <script>
+        let jsmeApplet = null;
+        function jsmeOnLoad() {
+            if (!jsmeApplet) {
+                jsmeApplet = new JSApplet.JSME("jsme_container", "450", "340px");
+                jsmeApplet.setCallBack("AfterStructureModified", function () {
+                    document.getElementById("smiles").value = jsmeApplet.smiles();
+                });
+            }
+        }
+        function loadTestCompound() {
+            const testSmiles = "c3ccc(CN2CCCC[C@H]1NCC[C@H]12)cc3"; 
+            if (jsmeApplet) {
+                jsmeApplet.readGenericMolecularInput(testSmiles);
+                jsmeApplet.resetView(); 
+                document.getElementById("smiles").value = testSmiles;
+            } else {
+                alert("Molecular editor not yet initialized.");
+            }
+        }
+
+        window.onload = function () {
+            document.getElementById("smiles").value = ""; 
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const smilesInput = document.getElementById("smiles");
+            smilesInput.addEventListener("input", function () {
+                const smiles = this.value.trim();
+                if (jsmeApplet && smiles.length > 0) {
+                    try {
+                        jsmeApplet.readGenericMolecularInput(smiles);
+                        jsmeApplet.resetView();  
+                    } catch (e) {
+                        console.warn("Invalid SMILES:", smiles);
+                    }
+                }
+            });
+        });
+      </script>
+    <style>
+        body {
+            font-family: 'Cascadia Code SemiBold', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, rgba(245, 247, 250, 0.9), rgba(195, 207, 226, 0.9));
+            color: #333;
+            font-size: 20px;
+        }
+        .main-content {
+            margin: 0 auto; 
+            padding: 20px;
+            min-height: 100vh;
+            max-width: 1200px;
+            opacity: 1;           
+        }
+
+        .container h1 {
+            color: #1a5276;
+            text-shadow: 1px 1px 2px #aaa;
+            font-size: 2.5rem;
+            margin-top: 0;
+        }
+        .container p {
+            font-size: 1.5rem;
+        }
+
+        .nav-bar {
+            background-color: #08517f;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(255, 255, 255, 0.278);
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li a {
+            text-decoration: none;
+            color: #fff;       
+            font-size: 1.6rem; 
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-links li a:hover {
+            background-color: rgba(255, 255, 255, 0.2); 
+        }
+
+
+        #jsme_container {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 450px;
+            height: 340px;
+            overflow: hidden;
+        }
+        .textarea-container {
+            margin-top: 10px;
+        }
+        textarea {
+            width: 450px;
+            height: 80px;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            resize: none;
+            font-size: 1.5rem;
+        }
+
+        .model-box {
+            width: 400px;
+            background-color: rgba(255, 255, 255, 0.567);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 5px;
+            margin-left: 40px;
+            margin-top: 0;
+        }
+        .model-header {
+            background-color: #08517f; 
+            padding: 10px 15px;       
+            border-radius: 5px;      
+            margin-bottom: 15px;     
+        }
+        .model-header h2 {
+            color: #ffffff;
+            margin: 0;
+            text-align: center;
+            font-size: 1.6rem;
+        }
+        .model-box ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+        }
+
+        .model-box ul li {
+            text-align: center;
+        }
+
+        .model-box ul li a {
+            display: block;
+            border: 2px solid #45a1db;
+            border-radius: 5px;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+            font-size: 1.4rem;
+            transition: background-color 0.3s ease;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .model-box ul li a:hover {
+            background-color: #f0f0f0;
+        }
+        .selected-model {
+            background-color: #b3d9f2 !important;
+        }
+        .predict-button {
+            display: block;
+            margin: 20px auto 0 auto;
+            padding: 15px 25px;
+            background-color: #08517f; 
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .predict-button:hover {
+            background-color:  #08517f;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .footer p {
+            font-size: 1.4rem;
+            color: #1a5276;
+            margin-bottom: 10px;
+            font-family: 'Cascadia Code SemiBold', Arial, sans-serif;
+        }
+        .footer a {
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            color: #1a5276;
+            transition: color 0.3s ease;
+        }
+        .footer a:hover {
+            color: #357ab7;
+        }
+        .glyphicon {
+            margin-right: 5px;
+        }
+
+        .flex-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 40px;
+            margin-top: 20px;
+        }
+        .model-selection {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Two columns */
+            gap: 15px; /* Spacing between cards */
+            margin-top: 20px;
+        }
+
+        .model-card {
+            background-color: #f5f7fa;
+            border: 2px solid #ccc;
+            border-radius: 10 px;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .model-card:hover {
+            transform: scale(1.05); 
+            background-color: #eaf4fc;
+            border-color: #85c1e9;
+        }
+        .model-card label {
+            display: flex;
+            align-items: center;
+            gap: 10px; 
+            cursor: pointer;
+        }
+
+        .model-card input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #08517f;
+            cursor: pointer;
+        }   
+        .gwt-MenuBar {
+            font-size: 14px !important;
+            padding: 5px 10px !important; 
+        }
+
+        .gwt-MenuItem {
+            font-size: 14px !important; 
+            padding: 8px 12px !important;
+            line-height: 1.4 !important; 
+        }
+
+        .gwt-MenuItem-disabled {
+            color: #aaa !important; 
+            font-size: 14px !important; 
+            padding: 8px 12px !important; 
+        }
+
+        .menuPopupContent {
+            font-size: 14px !important; 
+            padding: 10px !important;
+        }
+
+        .menuSeparatorInner {
+            height: 1px !important;
+            background-color: #ccc !important; 
+        }
+
+        .gwt-MenuBarPopup {
+            width: auto !important; 
+            max-width: 300px !important;
+            border-radius: 6px !important; 
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1) !important; 
+        }
+        .mosaic-Caption {
+            font-size: 16px !important; 
+            font-weight: bold; 
+        }
+        .gwt-HTML {
+            font-size: 14px !important; 
+            line-height: 1.5 !important; 
+            color: #555; 
+        }
+        .gwt-TextArea + table button {
+            font-size: 14px !important;
+            padding: 8px 15px !important; 
+        }
+        button:not(.predict-button), input[type="file"] {
+            font-size: 12px !important; 
+            padding: 5px 10px !important; 
+            line-height: 1.2 !important; 
+            border: 1px solid #ccc !important;
+            border-radius: 4px !important;
+            background-color: #f9f9f9 !important; 
+            color: #333 !important;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        button:not(.predict-button):hover, input[type="file"]:hover {
+            background-color: #ddd !important; 
+            color: #000 !important;
+        }
+
+        .predict-button {
+            display: block;
+            margin: 20px auto 0 auto;
+            padding: 15px 25px;
+            background-color: #08517f;
+            color: #fff; 
+            font-size: 1.4rem; 
+            font-weight: 600;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; 
+        }
+        .predict-button:hover {
+            background-color: #0a74b6; 
+        }
+
+    </style>
+
+    <script>
+        function setModel(modelType, element) {
+            selectedModel = modelType; 
+            const allRadios = document.querySelectorAll('.model-card input[type="radio"]');
+            allRadios.forEach(radio => (radio.checked = false));
+            const radio = element.querySelector('input[type="radio"]');
+            if (radio) {
+                radio.checked = true;
+            }
+
+            console.log(`Selected model: ${selectedModel}`);
+        }
+        async function predictTop20() {
+            if (!selectedModel) {
+                alert("Please select a DNN model first.");
+                return;
+            }
+
+            const smilesInput = document.getElementById("smiles").value.trim();
+            if (!smilesInput) {
+                alert("Please enter a valid SMILES.");
+                return;
+            }
+
+            try {
+                const newTab = window.open("", "_blank");
+
+                const response = await fetch("/result", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ smiles: [smilesInput], model_type: selectedModel })
+                });
+
+                if (!response.ok) {
+                    alert("Error: Server returned an error response.");
+                    newTab.close();
+                    return;
+                }
+
+                const responseText = await response.text();
+                if (newTab && responseText) {
+                    newTab.document.open();
+                    newTab.document.write(responseText); 
+                    newTab.document.close();
+                } else {
+                    alert("Popup blocked or invalid response.");
+                }
+            } catch (error) {
+                alert("Error: Could not reach the server.");
+                console.error(error);
+            }
+        }
+
+    </script>
+</head>
+<body>
+    <div class="main-content">
+        <div class="container">
+            <h1>Welcome to Polypharmacology Browser 3 (PPB3)!</h1>
+            <div class="nav-bar">
+                <ul class="nav-links">
+                    <li><a href="home" onclick="homeClicked();return false;">Home</a></li>
+                    <li><a href="/tutorial">Tutorial</a></li>
+                    <li><a href="/faq">FAQ</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </div>
+        <div id="home">
+            <p>
+                Draw or paste your query molecule here:
+                <a href="#" onclick="loadTestCompound(); return false;">Click here to load test compound</a>
+            </p>
+        
+            <div class="flex-row">
+                <!-- Left Column -->
+                <div class="editor-column">
+                    <div id="jsme_container"></div>
+                    <div class="textarea-container">
+                        <textarea id="smiles" placeholder="SMILES will appear here automatically..."></textarea>
+                    </div>
+                </div>
+        
+                <!-- Right Column: Model Box -->
+                <div class="model-box">
+                    <div class="model-header">
+                        <h2>Select a target prediction method:</h2>
+                    </div>
+                    <div class="model-selection">
+                        <div class="model-card" data-model="Fused" onclick="setModel('Fused', this)">
+                            <label>
+                                <input type="radio" name="model" value="Fused">
+                                DNN(ECFP4+MHFP6)
+                            </label>
+                        </div>
+                        <div class="model-card" data-model="ECFP4" onclick="setModel('ECFP4', this)">
+                            <label>
+                                <input type="radio" name="model" value="ECFP4">
+                                DNN(ECFP4)
+                            </label>
+                        </div>
+                        <div class="model-card" data-model="RDKit" onclick="setModel('RDKit', this)">
+                            <label>
+                                <input type="radio" name="model" value="RDKit">
+                                DNN(RDKit)
+                            </label>
+                        </div>
+                        <div class="model-card" data-model="Layered" onclick="setModel('Layered', this)">
+                            <label>
+                                <input type="radio" name="model" value="Layered">
+                                DNN(Layered)
+                            </label>
+                        </div>
+                        <div class="model-card" data-model="MHFP6" onclick="setModel('MHFP6', this)">
+                            <label>
+                                <input type="radio" name="model" value="MHFP6">
+                                DNN(MHFP6)
+                            </label>
+                        </div>
+                        <div class="model-card" data-model="ECFP6" onclick="setModel('ECFP6', this)">
+                            <label>
+                                <input type="radio" name="model" value="ECFP6">
+                                DNN(ECFP6)
+                            </label>
+                        </div>
+                        <div class="model-card" data-model="AtomPair" onclick="setModel('AtomPair', this)">
+                            <label>
+                                <input type="radio" name="model" value="AtomPair">
+                                DNN(AtomPair)
+                            </label>
+                        </div>
+                    </div>   
+                                     
+                    <button class="predict-button" onclick="predictTop20()">
+                        Predict top 20 targets
+                    </button>
+                </div>                
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <p>Follow us:</p>
+            <a href="https://gdb.unibe.ch/" target="_blank" title="Reymond Group Website">
+                <img src="static/website.png" alt="Website Icon" style="width: 20px; height: 20px;">
+            </a>
+            <a href="https://www.linkedin.com/in/reymond-group-4a2712289/" target="_blank" title="LinkedIn">
+                <img src="static/linkedin.png" alt="LinkedIn Icon" style="width: 20px; height: 20px;">
+            </a>
+            <a href="https://x.com/reymondgroup" target="_blank" title="X">
+                <img src="static/x.png" alt="X Icon" style="width: 20px; height: 20px;">
+            </a>
+            <a href="https://bsky.app/profile/reymondgroup.bsky.social" target="_blank" title="Bluesky">
+                <img src="static/bluesky.png" alt="Bluesky Icon" style="width: 20px; height: 20px;">
+            </a>
+        </footer>
+        
+    </div>
+</body>
+</html>
