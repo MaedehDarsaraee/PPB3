@@ -1,6 +1,7 @@
 import pandas as pd
 from tensorflow.keras.models import load_model
-# Load Trained Models
+
+# load trained models
 try:
     MODELS = {
         "ECFP4": load_model("ecfp4_dnn_final_model.h5", compile=False),
@@ -11,12 +12,12 @@ try:
         "ECFP6": load_model("ecfp6_dnn_model_full_data.h5", compile=False),
         "Fused": load_model("fused11_dnn_model_full_data.h5", compile=False),
     }
-    print("Models loaded successfully")
+    print("models loaded successfully")
 except Exception as e:
-    print(f"Error loading models: {e}")
+    print(f"error loading models: {e}")
     MODELS = {}
 
-# Load Target Details
+# load target details
 try:
     target_details = pd.read_csv("TARGETSDETAILS_2nd.txt", sep="\t")
     target_classification = pd.read_csv("TARGETCLASSIFICATION_2nd.txt", sep="\t")
@@ -26,20 +27,20 @@ try:
     TARGET_ID_TO_ORGANISM = target_classification.set_index("CHEMBL_ID")["ORGANISM"].to_dict()
     TARGET_ID_TO_TYPE = target_classification.set_index("CHEMBL_ID")["TYPE"].to_dict()
 
-    # Load target labels used in DNN outputs
+    # load target labels used in dnn outputs
     with open("DNNTARLABELS_2nd.txt", "r") as f:
         TARGET_LABELS = [line.strip() for idx, line in enumerate(f) if idx > 0 and line.strip()]
 
-    print("Target details and labels loaded successfully")
+    print("target details and labels loaded successfully")
 
 except Exception as e:
-    print(f"Error loading target details or labels: {e}")
+    print(f"error loading target details or labels: {e}")
     TARGET_ID_TO_NAME, TARGET_ID_TO_CLASS, TARGET_ID_TO_ORGANISM, TARGET_ID_TO_TYPE = {}, {}, {}, {}
     TARGET_LABELS = []
 
-# Helper Function
+# helper function
 def get_target_info(chembl_id: str) -> dict:
-    """Return all metadata for a target ID."""
+    """return all metadata for a target id."""
     return {
         "name": TARGET_ID_TO_NAME.get(chembl_id, "Unknown"),
         "class": TARGET_ID_TO_CLASS.get(chembl_id, "Unknown"),
