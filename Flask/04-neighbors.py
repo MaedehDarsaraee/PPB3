@@ -5,7 +5,7 @@ import subprocess as sub
 from rdkit import Chem
 from rdkit.Chem import Draw
 
-# Global counters and caches
+# global counters and caches
 ecfp4_counter = 0
 rdkit_counter = 0
 atompair_counter = 0
@@ -18,10 +18,6 @@ nn_file_cache = {}
 
 def find_nearest_neighbors_with_jar(smiles, target_id, fingerprint_data, db_file,
                                     num_neighbors=50, fp_type="ECfp4", scoring_method="TANIMOTO"):
-    """
-    Runs the appropriate Java JAR to compute nearest neighbors for the given SMILES.
-    Returns the path to the generated nearest neighbors file.
-    """
     global ecfp4_counter, rdkit_counter, atompair_counter, layered_counter
     global mhfp6_counter, ecfp6_counter, fused_counter, query_file_cache, nn_file_cache
     jar_files = {
@@ -34,14 +30,14 @@ def find_nearest_neighbors_with_jar(smiles, target_id, fingerprint_data, db_file
         "Fused": "PPB3_FUSED.jar",
     }
     if fp_type not in jar_files:
-        raise ValueError(f"Unsupported fingerprint type: {fp_type}")
+        raise ValueError(f"unsupported fingerprint type: {fp_type}")
 
     jar_path = jar_files[fp_type]
     cache_key = f"{smiles}_{fp_type}"
     if cache_key in nn_file_cache:
         return nn_file_cache[cache_key]
 
-    # Increment query index based on fingerprint type
+    # increment query index based on fingerprint type
     counters = {
         "ECfp4": "ecfp4_counter",
         "RDKit": "rdkit_counter",
@@ -54,20 +50,20 @@ def find_nearest_neighbors_with_jar(smiles, target_id, fingerprint_data, db_file
     globals()[counters[fp_type]] += 1
     query_index = globals()[counters[fp_type]]
 
-    # Construct query file
+    # construct query file
     query_fp_file_path = f"queries/{fp_type.lower()}_q{query_index}.txt"
     os.makedirs(os.path.dirname(query_fp_file_path), exist_ok=True)
 
-    # Write fingerprint to query file
+    # write fingerprint to query file
     with open(query_fp_file_path, "w") as f:
-        f.write(f"SMILES\tCPDid\tTARid\t{fp_type}\n")
+        f.write(f"smiles\tcpdid\ttarid\t{fp_type}\n")
         f.write(f"{smiles}\tquery_{query_index}\t{target_id}\t{fingerprint_data}\n")
 
     query_file_cache[cache_key] = query_fp_file_path
     output_file_path = f"results/{fp_type.lower()}_q{uuid.uuid4().hex[:8]}_nn.txt"
     os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
 
-    # Run the Java JAR
+    # run the java jar
     try:
         sub.run(
             [
@@ -82,8 +78,9 @@ def find_nearest_neighbors_with_jar(smiles, target_id, fingerprint_data, db_file
         nn_file_cache[cache_key] = output_file_path
         return output_file_path
     except sub.CalledProcessError as e:
-        raise RuntimeError(f"Error running nearest neighbors JAR: {e}")
+        raise RuntimeError(f"error running nearest neighbors jar: {e}")
 
+# molecule image generator
 def generate_molecule_image(smiles, compound_id):
     try:
         mol = Chem.MolFromSmiles(smiles)
@@ -93,5 +90,5 @@ def generate_molecule_image(smiles, compound_id):
             Draw.MolToFile(mol, image_path)
             return image_path
     except Exception as e:
-        print(f"Error generating image for {smiles}: {e}")
+        print(f"error generating image for {smiles}: {e}")
     return None
