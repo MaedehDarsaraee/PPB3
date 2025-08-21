@@ -4,8 +4,7 @@ import uuid
 
 def generate_unique_query_id() -> str:
     return str(uuid.uuid4())
-
-# Generating the next numeric prediction file path in the results directory (preds_X.txt). 
+# generating the next prediction file (preds_X.txt)
 def get_next_prediction_file_path(results_dir: str = "results") -> str:
     os.makedirs(results_dir, exist_ok=True)
     existing_files = [f for f in os.listdir(results_dir) if f.startswith("preds_") and f.endswith(".txt")]
