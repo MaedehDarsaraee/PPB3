@@ -9,10 +9,10 @@ from rdkit.Chem.MolStandardize import charge
 from mhfp.encoder import MHFPEncoder
 from tensorflow.keras.models import load_model
 
-# Flask App Initialization
+# flask app initialization
 app = Flask(__name__, static_folder="static")
 
-# Load Models & Target Info
+# load models & target info
 try:
     MODELS = {
         'ECFP4': load_model('ecfp4_dnn_final_model.h5', compile=False),
@@ -21,11 +21,10 @@ try:
         'RDKit': load_model('rdkit_dnn_model_full_data.h5', compile=False),
         'MHFP6': load_model('mhfp6_dnn_model_full_data.h5', compile=False),
         'ECFP6': load_model('ecfp6_dnn_model_full_data.h5', compile=False),
-        'Fused': load_model('fused11_dnn_model_full_data.h5', compile=False)
-    }
-    print("Models loaded successfully")
+        'Fused': load_model('fused11_dnn_model_full_data.h5', compile=False)}
+    print("models loaded successfully")
 except Exception as e:
-    print(f"Error loading models: {e}")
+    print(f"error loading models: {e}")
     MODELS = {}
 
 try:
@@ -39,14 +38,13 @@ try:
 
     with open('DNNTARLABELS_2nd.txt', 'r') as f:
         TARGET_LABELS = [line.strip() for idx, line in enumerate(f) if idx > 0 and line.strip()]
-
-    print("Target details and labels loaded successfully")
+    print("target details and labels loaded successfully")
 except Exception as e:
-    print(f"Error loading target data: {e}")
+    print(f"error loading target data: {e}")
     TARGET_LABELS = []
     TARGET_ID_TO_NAME, TARGET_ID_TO_CLASS, TARGET_ID_TO_ORGANISM, TARGET_ID_TO_TYPE = {}, {}, {}, {}
 
-# Fingerprint Functions
+# fingerprint functions
 mhfp_encoder = MHFPEncoder()
 
 def calculate_ecfp4(smi): 
@@ -72,10 +70,9 @@ FINGERPRINTS = {
     'Layered': calculate_layered,
     'RDKit': calculate_rdkit,
     'MHFP6': calculate_mhfp6,
-    'Fused': fuse_fingerprints,
-}
+    'Fused': fuse_fingerprints}
 
-# Helpers
+# helpers
 def preprocess_smiles(smi):
     mol = Chem.MolFromSmiles(smi)
     if not mol: return None
@@ -106,7 +103,7 @@ def generate_molecule_image(smiles, compound_id):
         return path
     return None
 
-# Routes
+# routes
 @app.route("/")
 @app.route("/home")
 def home(): return render_template("index.html")
@@ -129,21 +126,21 @@ def result():
     try:
         data = request.json
         smiles_list = data.get("smiles", [])
-        if not smiles_list: return jsonify({"error": "No SMILES provided"}), 400
+        if not smiles_list: return jsonify({"error": "no smiles provided"}), 400
 
         processed = [preprocess_smiles(s) for s in smiles_list]
         valid = [s for s in processed if s]
         invalid = [s for s in smiles_list if s not in valid]
-        if not valid: return jsonify({"error": "All SMILES invalid"}), 400
+        if not valid: return jsonify({"error": "all smiles invalid"}), 400
 
         model_type = data.get("model_type", "ECFP4")
         num_predictions = data.get("num_predictions", 20)
         fp_fn, model = FINGERPRINTS.get(model_type), MODELS.get(model_type)
-        if not fp_fn or not model: return jsonify({"error": f"Model {model_type} not found"}), 400
+        if not fp_fn or not model: return jsonify({"error": f"model {model_type} not found"}), 400
 
         results, class_counts, org_counts, type_counts = [], {}, {}, {}
         with open(get_next_prediction_file_path(), "w") as f:
-            f.write("SMILES\tTARid\n")
+            f.write("smiles\ttarid\n")
             for smi in valid:
                 fp = fp_fn(smi)
                 if fp is None: continue
@@ -155,16 +152,15 @@ def result():
                     targets.append({
                         "rank": rank,
                         "target_id": tid,
-                        "target_name": TARGET_ID_TO_NAME.get(tid, "Unknown"),
+                        "target_name": TARGET_ID_TO_NAME.get(tid, "unknown"),
                         "confidence": round(float(preds[idx]), 2),
-                        "class": TARGET_ID_TO_CLASS.get(tid, "Unknown"),
-                        "type": TARGET_ID_TO_TYPE.get(tid, "Unknown"),
-                        "organism": TARGET_ID_TO_ORGANISM.get(tid, "Unknown"),
+                        "class": TARGET_ID_TO_CLASS.get(tid, "unknown"),
+                        "type": TARGET_ID_TO_TYPE.get(tid, "unknown"),
+                        "organism": TARGET_ID_TO_ORGANISM.get(tid, "unknown"),
                         "url": f"https://www.ebi.ac.uk/chembl/target_report_card/{tid}"
                     })
                     f.write(f"{smi}\t{tid}\n")
                 results.append({"smiles": smi, "predictions": targets})
-
         img_path = generate_molecule_image(valid[0], "query_molecule") or "static/placeholder.png"
         return render_template("result.html", results=results, invalid_smiles=invalid,
                                class_counts=class_counts, organism_counts=org_counts,
@@ -173,6 +169,6 @@ def result():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Run App
+# run app
 if __name__ == "__main__":
     app.run(debug=True, host="localhost", port=5000)
